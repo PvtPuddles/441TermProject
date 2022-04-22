@@ -49,12 +49,25 @@ if __name__ == "__main__":
             for j in range(size):
                 matrix.data[i][j] = i + j
 
+        # Analysis of Basic Multiplication
         startTime = time.time()
         result = matrix.multiply(matrix)
         endTime = time.time()
         basicTime = endTime - startTime
 
-        file.write(f"{size}, {size * size}, {basicTime}, null, null\n")
+        # Analysis of Straussen's
+        startTime = time.time()
+        # result = matrix.SAM(matrix)
+        endTime = time.time()
+        SAMTime = endTime - startTime
+
+        # Analysis of SAMk
+        startTime = time.time()
+        # result = matrix.SAMk(matrix)
+        endTime = time.time()
+        SAMkTime = endTime - startTime
+
+        file.write(f"{size}, {size * size}, {basicTime}, {SAMTime}, {SAMkTime}\n")
 
         progress = int(mat / steps * loadingBarSize)
         loadingBar = "█" * progress + " " * (steps - progress)
