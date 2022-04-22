@@ -81,7 +81,7 @@ def doTest4():
 		for j in range(matrix1.columns):
 			matrix1.data[i][j] = (i+1) * (j+1)
 
-	matrix2 = Matrix(7, 2)
+	matrix2 = Matrix(7, 3)
 	for i in range(matrix2.rows):
 		for j in range(matrix2.columns):
 			matrix2.data[i][j] = i + j

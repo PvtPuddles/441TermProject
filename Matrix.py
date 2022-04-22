@@ -12,21 +12,7 @@ class Matrix:
 		        col.append(0)
 		    self.data.append(col)
 
-    # Functions for pretty printing
-	def getColumnWidth(self):
-		width = 0
-		for i in range(0, self.rows):
-			for j in range(0, self.columns):
-				if len(str(self.data[i][j])) > width:
-					width = len(str(self.data[i][j]))
-		return width
-
-	def getMatrixWidth(self):
-		width = 2    			# | and |
-		width = width + 1   	# padding before second |
-		width = width + (self.getColumnWidth() + 1) * self.columns
-		return width
-
+	# Basic matrix multiplication
 	def multiply(self, other):
 		if not self.columns == other.rows:
 			raise Exception("Incompatible matrices, multiplication failed")
@@ -44,7 +30,26 @@ class Matrix:
 
 		return result
 
+    # Functions for pretty printing
+    # -----------------------------
 
+    # Gets witdh of the largest element in the matrix
+	def getColumnWidth(self):
+		width = 0
+		for i in range(0, self.rows):
+			for j in range(0, self.columns):
+				if len(str(self.data[i][j])) > width:
+					width = len(str(self.data[i][j]))
+		return width
+
+	# Gets total width of the matrix
+	def getMatrixWidth(self):
+		width = 2    			# | and |
+		width = width + 1   	# padding before second |
+		width = width + (self.getColumnWidth() + 1) * self.columns
+		return width
+
+	# Converts matrix data to pretty-array format for printing
 	def toArray(self):
 		width = self.getColumnWidth()
 		body = []
@@ -75,6 +80,9 @@ class Matrix:
 
 		return text
 
+	"""
+	Pads the top + bottom of an array so that it displays nicely
+	"""
 	@staticmethod
 	def padMatrixArray(matrix, width, targetHeight):
 		if(len(matrix) < targetHeight):
@@ -88,6 +96,11 @@ class Matrix:
 
 		return matrix
 
+	"""
+	Prints the 3 provided matrices in the form
+	matrix1 * matrix2 = resultMatrix
+	~does not perform multiplacation~
+	"""
 	@staticmethod
 	def printMultiply(matrix1, matrix2, resultMatrix):
 
@@ -101,11 +114,6 @@ class Matrix:
 		m1 = Matrix.padMatrixArray(m1, matrix1.getMatrixWidth(), height)
 		m2 = Matrix.padMatrixArray(m2, matrix2.getMatrixWidth(), height)
 		result = Matrix.padMatrixArray(result, resultMatrix.getMatrixWidth(), height)
-		
-		# if(len(m2) < height):
-		# 	delta = int((height - len(m2))/2)
-		# 	for i in range(0, delta):
-		# 		m2.insert(0, " " * matrix2.getColumnWidth())
 
 		for i in range(0, int(height / 2)):
 			print(f"{m1[i]}   {m2[i]}   {result[i]}")
