@@ -9,9 +9,9 @@ from BasicTest import testHeading
 
 if __name__ == "__main__":
 
-    size = 50
-    steps = 3
-    stepSize = 50
+    size = 10
+    steps = 20
+    stepSize = 10
 
     if(len(sys.argv) > 1):
         for i in range(1, len(sys.argv)):
@@ -36,6 +36,12 @@ if __name__ == "__main__":
     fileName = fileName + ".csv"
 
     file = open("RunTimeResults/" + fileName, 'w')
+    file.write("Matrix Size, Elements, Basic Multiply, SAM, SAMk\n")
+
+    loadingBarSize = 20
+
+    loadingBar = " " * loadingBarSize
+    print(f"[{loadingBar}]", end="\r")
 
     for mat in range(steps):
         matrix = Matrix(size, size)
@@ -44,13 +50,18 @@ if __name__ == "__main__":
                 matrix.data[i][j] = i + j
 
         startTime = time.time()
-
         result = matrix.multiply(matrix)
-
         endTime = time.time()
-        file.write(f"{size}, {endTime - startTime}\n")
-        print(f"Matrices (size {size}) finished in {endTime - startTime}")
+        basicTime = endTime - startTime
 
+        file.write(f"{size}, {size * size}, {basicTime}, null, null\n")
+
+        progress = int(mat / steps * loadingBarSize)
+        loadingBar = "█" * progress + " " * (steps - progress)
+        print(f"[{loadingBar}]", end="\r")
         size = size + stepSize
+    
+    loadingBar = "█" * loadingBarSize
+    print(f"[{loadingBar}]")
 
     file.close()
