@@ -3,3 +3,8 @@
 RunTimeResults
 *.csv
 .DS_Store
+
+# Ignore open workbook data (excel)
+~$*.xlsx
+
+__pycache__

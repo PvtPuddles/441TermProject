@@ -25,6 +25,8 @@ if __name__ == "__main__":
     if not exists("RunTimeResults/"):
         os.mkdir("RunTimeResults")
 
+    print(f"Testing matrices from n={size} to n={(steps-1)*stepSize + size}")
+
     fileName = f"run_times_{size}_to_{(steps-1)*stepSize + size}"
     numString = ""
     num = 0
