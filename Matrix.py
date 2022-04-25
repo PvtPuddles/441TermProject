@@ -2,13 +2,19 @@
 
 class Matrix:
 
-	def importData(self, data):
+	def importData(self, data, rows=-1, columns=-1):
 		self.data = data
-		self.rows = len(data)
-		if self.rows > 0:
-			self.columns = len(data[0])
+		if rows == -1:
+			self.rows = len(data)
 		else:
-			self.columns = 0
+			self.rows = rows
+		if columns == -1:
+			if self.rows > 0:
+				self.columns = len(data[0])
+			else:
+				self.columns = 0
+		else:
+			self.columns = columns
 		return self
 	
 	def makeMatrix(self, rows, columns):
@@ -19,6 +25,17 @@ class Matrix:
 			col = []
 			for _ in range(self.columns):
 				col.append(0)
+			self.data.append(col)
+		return self
+
+	def makeSubMatrix(self, rows, columns, reference, startRow, startCol):
+		self.rows = rows
+		self.columns = columns
+		self.data=[]
+		for i in range(self.rows):
+			col = []
+			for j in range(self.columns):
+				col.append(reference[startRow + i][startCol + j])
 			self.data.append(col)
 		return self
 	
@@ -94,26 +111,19 @@ class Matrix:
 		result = Matrix().makeMatrix(a.rows, a.columns)
 		# Dimensions of sub-matrices
 		k = a.rows // 2
-		# Define sub-matrices (may be slow)
-		ma11 = Matrix().makeMatrix(k, k)
-		ma12 = Matrix().makeMatrix(k, k)
-		ma21 = Matrix().makeMatrix(k, k)
-		ma22 = Matrix().makeMatrix(k, k)
-		mb11 = Matrix().makeMatrix(k, k)
-		mb12 = Matrix().makeMatrix(k, k)
-		mb21 = Matrix().makeMatrix(k, k)
-		mb22 = Matrix().makeMatrix(k, k)
-		# initialize sub-matrices
-		for i in range(k):
-			for j in range(k):
-				ma11[i][j] = a[i][j]
-				ma12[i][j] = a[i][k+j]
-				ma21[i][j] = a[k+i][j]
-				ma22[i][j] = a[k+i][k+j]
-				mb11[i][j] = b[i][j]
-				mb12[i][j] = b[i][k+j]
-				mb21[i][j] = b[k+i][j]
-				mb22[i][j] = b[k+i][k+j]
+		# Define and initialize sub-matrices (may be slow)
+		ma11 = Matrix().makeSubMatrix(k, k, a, 0, 0)
+		ma12 = Matrix().makeSubMatrix(k, k, a, 0, k)
+		ma21 = Matrix().makeSubMatrix(k, k, a, k, 0)
+		ma22 = Matrix().makeSubMatrix(k, k, a, k, k)
+		mb11 = Matrix().makeSubMatrix(k, k, b, 0, 0)
+		mb12 = Matrix().makeSubMatrix(k, k, b, 0, k)
+		mb21 = Matrix().makeSubMatrix(k, k, b, k, 0)
+		mb22 = Matrix().makeSubMatrix(k, k, b, k, k)
+		# Define + initialize has a runtime of 8(k^2)
+		# 	- Optimized to 7(k^2), but still a nasty amount of overhead
+		# If this was programmed in c, we could simply move the pointers
+		# 	for this to run in constant time
 
 		p1 = ma11.SAM(mb12 - mb22)
 		p2 = (ma11 + ma12).SAM(mb22)

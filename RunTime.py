@@ -54,7 +54,7 @@ if __name__ == "__main__":
     loadingBarSize = 20
 
     loadingBar = " " * loadingBarSize
-    print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
+    print(f"Multiplying matrices... [{loadingBar}] (0/{steps}) ", end="\r")
 
     matrix = Matrix()
     data = []
@@ -64,7 +64,7 @@ if __name__ == "__main__":
             column.append(i + j)
         data.append(column)
     matrix.importData(data)
-    for mat in range(steps):
+    for step in range(steps):
         file = open("RunTimeResults/" + fileName, "a")
         file.write(f"{size}, {size * size}")
 
@@ -94,11 +94,11 @@ if __name__ == "__main__":
 
         file.write("\n")
 
-        progress = int(mat / steps * loadingBarSize)
+        progress = int(step / steps * loadingBarSize)
         loadingBar = "█" * progress + " " * (loadingBarSize - progress)
-        print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
+        print(f"Multiplying matrices... [{loadingBar}] ({step}/{steps})    ", end="\r")
 
-        if mat < steps-1:
+        if step < steps-1:
             # Expand the old matrix (rather than make a new one)
             # Much faster so that tests can run longer
             newSize = size + stepSize
@@ -106,6 +106,6 @@ if __name__ == "__main__":
             size = newSize
     
     loadingBar = "█" * loadingBarSize
-    print(f"Multiplying matrices... [{loadingBar}]   ")
+    print(f"Multiplying matrices... [{loadingBar}] ({steps}/{steps})     ")
 
     file.close()
