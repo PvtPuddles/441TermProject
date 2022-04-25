@@ -11,7 +11,7 @@ from BasicTest import testHeading
 if __name__ == "__main__":
 
     size = 10
-    steps = 20
+    steps = 10
     stepSize = 10
 
     if(len(sys.argv) > 1):
@@ -45,19 +45,23 @@ if __name__ == "__main__":
     loadingBarSize = 20
 
     loadingBar = " " * loadingBarSize
-    print(f"Multiplying matrices... [{loadingBar}]", end="\r")
+    print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
 
     matrixTools = SMatrixTools()
 
 
-    matrix = Matrix(size, size)
+    matrix = Matrix()
+    data = []
     for i in range(size):
+        column = []
         for j in range(size):
-            matrix.data[i][j] = i + j
+            column.append(i + j)
+        data.append(column)
+    matrix.importData(data)
     for mat in range(steps):
         # Analysis of Basic Multiplication
         startTime = time.time()
-        result = matrix.multiply(matrix)
+        result = matrix.BMM(matrix)
         endTime = time.time()
         basicTime = endTime - startTime
 
@@ -68,10 +72,6 @@ if __name__ == "__main__":
         result = matrixTools.multiply(_matrix, _matrix, len(_matrix))
         endTime = time.time()
         SAMTime = endTime - startTime
-
-        # _result = Matrix(len(result), len(result[0]))
-        # _result.data = result
-        # print(_result)
 
         # Analysis of SAMk
         startTime = time.time()
@@ -85,27 +85,16 @@ if __name__ == "__main__":
 
         progress = int(mat / steps * loadingBarSize)
         loadingBar = "█" * progress + " " * (steps - progress)
-        print(f"Multiplying matrices... [{loadingBar}]", end="\r")
+        print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
 
         if mat < steps-1:
             # Expand the old matrix (rather than make a new one)
             # Much faster so that tests can run longer
             newSize = size + stepSize
-            # Expand current columns to be taller
-            for i in range(size):
-                for j in range(size, newSize):
-                    matrix[i].append(i+j)
-            # Add extra columns
-            for i in range(size, newSize):
-                column = []
-                for j in range(newSize):
-                    column.append(i + j)
-                matrix.data.append(column)
-            matrix.rows = newSize
-            matrix.columns = newSize
+            matrix.expandMatrix(newSize, newSize, fill=(lambda i, j: i + j))
             size = newSize
     
     loadingBar = "█" * loadingBarSize
-    print(f"Multiplying matrices... [{loadingBar}]")
+    print(f"Multiplying matrices... [{loadingBar}]   ")
 
     file.close()

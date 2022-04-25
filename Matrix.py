@@ -2,15 +2,25 @@
 
 class Matrix:
 
-	def __init__(self, rows, columns):
+	def importData(self, data):
+		self.data = data
+		self.rows = len(data)
+		if self.rows > 0:
+			self.columns = len(data[0])
+		else:
+			self.columns = 0
+		return self
+	
+	def makeMatrix(self, rows, columns):
 		self.rows = rows
 		self.columns = columns
 		self.data=[]
-		for i in range(self.rows):
-		    col = []
-		    for j in range(self.columns):
-		        col.append(0)
-		    self.data.append(col)
+		for _ in range(self.rows):
+			col = []
+			for _ in range(self.columns):
+				col.append(0)
+			self.data.append(col)
+		return self
 	
 	def __len__(self):
 		return self.rows
@@ -18,12 +28,33 @@ class Matrix:
 	def __getitem__(self, key):
 		return self.data[key]
 
-	# Basic matrix multiplication
-	def multiply(self, other):
-		if not self.columns == other.rows:
-			raise Exception("Incompatible matrices, multiplication failed")
+	def __add__(self, other):
+		if not self.rows == other.rows or not self.columns == other.columns:
+			raise Exception("Incompatible matrices, addition failed")
 
-		result = Matrix(self.rows, other.columns)
+		result = Matrix().makeMatrix(self.rows, self.columns)
+		for i in range(self.rows):
+			for j in range(self.columns):
+				result[i][j] = self[i][j] + other[i][j]
+		return result
+
+	def __sub__(self, other):
+		if not self.rows == other.rows or not self.columns == other.columns:
+    			raise Exception("Incompatible matrices, subtraction failed")
+
+		result = Matrix().makeMatrix(self.rows, self.columns)
+		for i in range(self.rows):
+			for j in range(self.columns):
+				result[i][j] = self[i][j] - other[i][j]
+		return result
+
+	# Basic matrix multiplication
+	def BMM(self, other):
+		if not self.columns == other.rows:
+			raise Exception("Incompatible matrices, BMM failed")
+
+		result = Matrix()
+		result.makeMatrix(self.rows, other.columns)
 
 		for i in range(0, result.rows):
 			for j in range(0, result.columns):
@@ -36,10 +67,102 @@ class Matrix:
 
 		return result
 
-    # Functions for pretty printing
-    # -----------------------------
+	def SAM(self, other):
+		if self.rows != self.columns or other.rows != other.columns:
+			raise Exception("Matrices must be square; SAM failed")
+		if self.columns != other.rows:
+			raise Exception("Incompatible matrices, SAM failed")
+		
+		if (self.rows == 1):
+			result = Matrix().importData([[
+				self[0][0] * other[0][0]
+			]])
+			return result
 
-    # Gets witdh of the largest element in the matrix
+		# Check that matrix is a power of 2
+		if (not (self.rows & (self.rows-1) == 0) and self.rows != 0):
+			m = Matrix.__findNextPowerOf2(self.rows)
+			self.expandMatrix(m, m)
+			other.expandMatrix(m, m)
+
+		# Result matrix
+		result = Matrix().makeMatrix(self.rows, self.columns)
+		# Dimensions of sub-matrices
+		k = self.rows // 2
+		ma11 = Matrix().makeMatrix(k, k)
+		ma12 = Matrix().makeMatrix(k, k)
+		ma21 = Matrix().makeMatrix(k, k)
+		ma22 = Matrix().makeMatrix(k, k)
+		mb11 = Matrix().makeMatrix(k, k)
+		mb12 = Matrix().makeMatrix(k, k)
+		mb21 = Matrix().makeMatrix(k, k)
+		mb22 = Matrix().makeMatrix(k, k)
+
+		for i in range(k):
+			for j in range(k):
+				ma11[i][j] = self[i][j]
+				ma12[i][j] = self[i][k+j]
+				ma21[i][j] = self[k+i][j]
+				ma22[i][j] = self[k+i][k+j]
+				mb11[i][j] = other[i][j]
+				mb12[i][j] = other[i][k+j]
+				mb21[i][j] = other[k+i][j]
+				mb22[i][j] = other[k+i][k+j]
+
+		p1 = ma11.SAM(mb12 - mb22)
+		p2 = (ma11 + ma12).SAM(mb22)
+		p3 = (ma21 + ma22).SAM(mb11)
+		p4 = ma22.SAM(mb21 - mb11)
+		p5 = (ma11 + ma22).SAM(mb11 + mb22)
+		p6 = (ma12 - ma22).SAM(mb21 + mb22)
+		p7 = (ma11 - ma21).SAM(mb11 + mb12)
+
+		mr11 = (((p5 + p4) + p6) - p2)
+		mr12 = p1 + p2
+		mr21 = p3 + p4
+		mr22 = ((p5 + p1) - p3) - p7
+
+		for i in range(k):
+			for j in range(k):
+				result[i][j] = mr11[i][j]
+				result[i][j+k] = mr12[i][j]
+				result[k+i][j] = mr21[i][j]
+				result[k+i][k+j] = mr22[i][j]
+		return result
+
+
+	def expandMatrix(self, rows, columns, *, fill = lambda i, j: 0):
+		# Expand current columns to be taller
+		for i in range(self.rows):
+			for j in range(self.columns, columns):
+				self[i].append(fill(i, j))
+		# Add extra columns
+		for i in range(self.rows, rows):
+			column = []
+			for j in range(columns):
+				column.append(fill(i, j))
+			self.data.append(column)
+		self.rows = rows
+		self.columns = columns
+		return self
+
+	@staticmethod
+	def __findNextPowerOf2(n):
+		#Bit manipulation stuff to find next power of 2 from n 
+		n = n - 1
+
+		n |= n >> 1
+		n |= n >> 2
+		n |= n >> 4
+		n |= n >> 8
+		n |= n >> 16
+
+		return n + 1
+
+	# Functions for pretty printing
+	# -----------------------------
+
+	# Gets witdh of the largest element in the matrix
 	def getColumnWidth(self):
 		width = 0
 		for i in range(0, self.rows):
@@ -79,11 +202,9 @@ class Matrix:
 		return body
 
 	def __str__(self):
-
-		body = self.toArray();
+		body = self.toArray()
 		text = "\n"
 		text = text.join(body)
-
 		return text
 
 	"""
@@ -93,11 +214,11 @@ class Matrix:
 	def padMatrixArray(matrix, width, targetHeight):
 		if(len(matrix) < targetHeight):
 			delta = int((targetHeight - len(matrix))/2)
-			# Prepend blanks
-			for i in range(0, delta):
+			# Prepend blanks to top of array
+			for _ in range(0, delta):
 				matrix.insert(0, " " * width)
-			# Append blanks
-			for i in range(len(matrix), targetHeight):
+			# Append blanks to bottom of array
+			for _ in range(len(matrix), targetHeight):
 				matrix.append(" " * width)
 
 		return matrix
@@ -108,7 +229,7 @@ class Matrix:
 	~does not perform multiplacation~
 	"""
 	@staticmethod
-	def printMultiply(matrix1, matrix2, resultMatrix):
+	def printEquation(matrix1, matrix2, resultMatrix, *, symbol="*"):
 
 		m1 = matrix1.toArray()
 		m2 = matrix2.toArray()
@@ -125,7 +246,7 @@ class Matrix:
 			print(f"{m1[i]}   {m2[i]}   {result[i]}")
 
 		mid = int(height / 2)
-		print(f"{m1[mid]} * {m2[mid]} = {result[mid]}")
+		print(f"{m1[mid]} {symbol} {m2[mid]} = {result[mid]}")
 
 		for i in range(int(height / 2) + 1, height):
 			print(f"{m1[i]}   {m2[i]}   {result[i]}")

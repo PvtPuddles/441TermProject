@@ -1,5 +1,6 @@
 
 from Matrix import Matrix
+from Sam import SMatrixTools
 
 def testHeading(text, m1, m2, m3):
 
@@ -16,93 +17,152 @@ def testHeading(text, m1, m2, m3):
 	return text
 
 def doTest1():
-	matrix1 = Matrix(1, 3)
-	matrix1.data = [
+	matrix1 = Matrix()
+	matrix1.importData([
 		[1, 2, 3]
-	]
+	])
 
-	matrix2 = Matrix(3, 1)
-	matrix2.data = [
+	matrix2 = Matrix()
+	matrix2.importData([
 		[4], [5], [6]
-	]
+	])
 
-	result = matrix1.multiply(matrix2)
+	result = matrix1.BMM(matrix2)
 
-	print(testHeading("TEST ONE", 
+	print(testHeading("BMM TEST ONE", 
 		matrix1, matrix2, result))
 
-	Matrix.printMultiply(matrix1, matrix2, result)
+	Matrix.printEquation(matrix1, matrix2, result)
 
 def doTest2():
 
-	matrix1 = Matrix(3, 1)
-	matrix1.data = [
+	matrix1 = Matrix()
+	matrix1.importData([
 		[4], [5], [6]
-	]
+	])
 
-	matrix2 = Matrix(1, 3)
-	matrix2.data = [
+	matrix2 = Matrix()
+	matrix2.importData([
 		[1, 2, 3]
-	]
+	])
 
-	result = matrix1.multiply(matrix2)
+	result = matrix1.BMM(matrix2)
 
-	print(testHeading("TEST TWO", 
+	print(testHeading("BMM TEST TWO", 
 		matrix1, matrix2, result))
 
-	Matrix.printMultiply(matrix1, matrix2, result)
+	Matrix.printEquation(matrix1, matrix2, result)
 
 def doTest3():
-	matrix1 = Matrix(2, 3)
-	matrix1.data = [
+	matrix1 = Matrix()
+	matrix1.importData([
 		[1, 2, 3], 
 		[4, 5, 6]
-	]
+	])
 
-	matrix2 = Matrix(3, 2)
-	matrix2.data = [
+	matrix2 = Matrix()
+	matrix2.importData([
 		[7, 8], 
 		[9, 10],
 		[11, 12]
-	]
+	])
 
-	result = matrix1.multiply(matrix2)
+	result = matrix1.BMM(matrix2)
 
-	print(testHeading("TEST THREE", 
+	print(testHeading("BMM TEST THREE", 
 		matrix1, matrix2, result))
 
-	Matrix.printMultiply(matrix1, matrix2, result)
+	Matrix.printEquation(matrix1, matrix2, result)
 
 
 def doTest4():
+	matrix1 = Matrix()
+	data = []
+	for i in range(5):
+		column = []
+		for j in range(7):
+			column.append((i+1) * (j+1))
+		data.append(column)
+	matrix1.importData(data.copy())
 
-	matrix1 = Matrix(5, 7)
-	for i in range(matrix1.rows):
-		for j in range(matrix1.columns):
-			matrix1.data[i][j] = (i+1) * (j+1)
+	matrix2 = Matrix()
+	data = []
+	for i in range(7):
+		column = []
+		for j in range(3):
+			column.append(i + j)
+		data.append(column)
+	matrix2.importData(data.copy())
 
-	matrix2 = Matrix(7, 3)
-	for i in range(matrix2.rows):
-		for j in range(matrix2.columns):
-			matrix2.data[i][j] = i + j
-
-	result = matrix1.multiply(matrix2)
+	result = matrix1.BMM(matrix2)
 
 	
-	print(testHeading("TEST FOUR", 
+	print(testHeading("BMM TEST FOUR", 
 		matrix1, matrix2, result))
 
-	Matrix.printMultiply(matrix1, matrix2, result)
+	Matrix.printEquation(matrix1, matrix2, result)
+
+def doBMMTests():
+	doTest1()
+	doTest2()
+	doTest3()
+	doTest4()
+
+def doSAM1():
+	matrix1 = Matrix().importData([
+		[1, 2],
+		[3, 4]
+	])
+
+	matrix2 = Matrix().importData([
+		[5, 6],
+		[7, 8]
+	])
+
+	resultBMM = matrix1.BMM(matrix2)
+
+	print(testHeading("SAM TEST ONE", 
+		matrix1, matrix2, resultBMM))
+
+	print("BMM:")
+	Matrix.printEquation(matrix1, matrix2, resultBMM)
+	print("SAM:")
+	resultSAM = matrix1.SAM(matrix2)
+	Matrix.printEquation(matrix1, matrix2, resultSAM)
+
+def doSAM2():
+	matrix1 = Matrix().importData([
+		[1, 2, 3],
+		[3, 4, 5],
+		[5, 6, 7]
+	])
+
+	matrix2 = Matrix().importData([
+		[5, 6, 7],
+		[7, 8, 9],
+		[9, 10, 11]
+	])
+
+	resultBMM = matrix1.BMM(matrix2)
+
+	print(testHeading("SAM TEST TWO", 
+		matrix1, matrix2, resultBMM))
+
+	print("BMM:")
+	Matrix.printEquation(matrix1, matrix2, resultBMM)
+	print("SAM:")
+	resultSAM = matrix1.SAM(matrix2)
+	Matrix.printEquation(matrix1, matrix2, resultSAM)
 
 
+def doSAMTests():
+	doSAM1()
+	doSAM2()
 
 if __name__ == "__main__":
 
-	doTest1()
+	# doBMMTests()
 
-	doTest2()
+	doSAMTests()
 
-	doTest3()
-
-	doTest4()
 

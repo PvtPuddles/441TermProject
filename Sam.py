@@ -4,9 +4,9 @@ class SMatrixTools:
 
     def __initMatrix(self, n) -> list:
             resultMatrix = []
-            for i in range(n):
+            for _ in range(n):
                 column = []
-                for j in range(n):
+                for _ in range(n):
                     column.append(0)
                 resultMatrix.append(column)
             return resultMatrix
@@ -53,58 +53,58 @@ class SMatrixTools:
     
     def multiply(self, m1, m2, n) -> list:
         if (len(m1) != len(m2)):            
-            raise RuntimeError('Matrix sizes do not match')    
-        else:
-            if (n == 1):
-                result = self.__initMatrix(1)
-                result[0][0]  = m1[0][0] * m2[0][0]
-                return result
-            
-            #Result matrix
-            result = self.__initMatrix(n)
-            #Dimension of sub-matrices
-            k = n // 2
-            #Initialize and define sub-matrices
-            ma11 = self.__initMatrix(k)
-            ma12 = self.__initMatrix(k)
-            ma21 = self.__initMatrix(k)
-            ma22 = self.__initMatrix(k)
-            mb11 = self.__initMatrix(k)
-            mb12 = self.__initMatrix(k)
-            mb21 = self.__initMatrix(k)
-            mb22 = self.__initMatrix(k)
+            raise RuntimeError('Matrix sizes do not match')  
 
-            for i in range(k):
-                for j in range(k):
-                    ma11[i][j] = m1[i][j]
-                    ma12[i][j] = m1[i][k+j]
-                    ma21[i][j] = m1[k+i][j]
-                    ma22[i][j] = m1[k+i][k+j]
-                    mb11[i][j] = m2[i][j]
-                    mb12[i][j] = m2[i][k+j]
-                    mb21[i][j] = m2[k+i][j]
-                    mb22[i][j] = m2[k+i][k+j]
-            
-            p1 = self.multiply(ma11, self.__subtract(mb12, mb22, k), k)
-            p2 = self.multiply(self.__add(ma11, ma12, k), mb22, k)
-            p3 = self.multiply(self.__add(ma21, ma22, k), mb11, k)
-            p4 = self.multiply(ma22, self.__subtract(mb21, mb11, k), k)
-            p5 = self.multiply(self.__add(ma11, ma22, k), self.__add(mb11, mb22, k), k)
-            p6 = self.multiply(self.__subtract(ma12, ma22, k), self.__add(mb21, mb22, k), k)
-            p7 = self.multiply(self.__subtract(ma11, ma21, k), self.__add(mb11, mb12, k), k)
-
-            mr11 = self.__subtract(self.__add(self.__add(p5, p4, k), p6, k), p2, k)
-            mr12 = self.__add(p1, p2, k)
-            mr21 = self.__add(p3, p4, k)
-            mr22 = self.__subtract(self.__subtract(self.__add(p5, p1, k), p3, k), p7, k)
-
-            for i in range(k):
-                for j in range(k):
-                    result[i][j] = mr11[i][j]
-                    result[i][j+k] = mr12[i][j]
-                    result[k+i][j] = mr21[i][j]
-                    result[k+i][k+j] = mr22[i][j]
+        if (n == 1):
+            result = self.__initMatrix(1)
+            result[0][0]  = m1[0][0] * m2[0][0]
             return result
+        
+        #Result matrix
+        result = self.__initMatrix(n)
+        #Dimension of sub-matrices
+        k = n // 2
+        #Initialize and define sub-matrices
+        ma11 = self.__initMatrix(k)
+        ma12 = self.__initMatrix(k)
+        ma21 = self.__initMatrix(k)
+        ma22 = self.__initMatrix(k)
+        mb11 = self.__initMatrix(k)
+        mb12 = self.__initMatrix(k)
+        mb21 = self.__initMatrix(k)
+        mb22 = self.__initMatrix(k)
+
+        for i in range(k):
+            for j in range(k):
+                ma11[i][j] = m1[i][j]
+                ma12[i][j] = m1[i][k+j]
+                ma21[i][j] = m1[k+i][j]
+                ma22[i][j] = m1[k+i][k+j]
+                mb11[i][j] = m2[i][j]
+                mb12[i][j] = m2[i][k+j]
+                mb21[i][j] = m2[k+i][j]
+                mb22[i][j] = m2[k+i][k+j]
+        
+        p1 = self.multiply(ma11, self.__subtract(mb12, mb22, k), k)
+        p2 = self.multiply(self.__add(ma11, ma12, k), mb22, k)
+        p3 = self.multiply(self.__add(ma21, ma22, k), mb11, k)
+        p4 = self.multiply(ma22, self.__subtract(mb21, mb11, k), k)
+        p5 = self.multiply(self.__add(ma11, ma22, k), self.__add(mb11, mb22, k), k)
+        p6 = self.multiply(self.__subtract(ma12, ma22, k), self.__add(mb21, mb22, k), k)
+        p7 = self.multiply(self.__subtract(ma11, ma21, k), self.__add(mb11, mb12, k), k)
+
+        mr11 = self.__subtract(self.__add(self.__add(p5, p4, k), p6, k), p2, k)
+        mr12 = self.__add(p1, p2, k)
+        mr21 = self.__add(p3, p4, k)
+        mr22 = self.__subtract(self.__subtract(self.__add(p5, p1, k), p3, k), p7, k)
+
+        for i in range(k):
+            for j in range(k):
+                result[i][j] = mr11[i][j]
+                result[i][j+k] = mr12[i][j]
+                result[k+i][j] = mr21[i][j]
+                result[k+i][k+j] = mr22[i][j]
+        return result
 
 class TestMatrixInternalMethods(unittest.TestCase):
     def testInit(self):
