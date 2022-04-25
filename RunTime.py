@@ -5,6 +5,7 @@ import os
 from os.path import exists
 
 from Matrix import Matrix
+from Sam import SMatrixTools
 from BasicTest import testHeading
 
 if __name__ == "__main__":
@@ -39,18 +40,21 @@ if __name__ == "__main__":
 
     file = open("RunTimeResults/" + fileName, 'w')
     file.write("Matrix Size, Elements, Basic Multiply, SAM, SAMk\n")
+    file.close()
 
     loadingBarSize = 20
 
     loadingBar = " " * loadingBarSize
-    print(f"[{loadingBar}]", end="\r")
+    print(f"Multiplying matrices... [{loadingBar}]", end="\r")
 
+    matrixTools = SMatrixTools()
+
+
+    matrix = Matrix(size, size)
+    for i in range(size):
+        for j in range(size):
+            matrix.data[i][j] = i + j
     for mat in range(steps):
-        matrix = Matrix(size, size)
-        for i in range(size):
-            for j in range(size):
-                matrix.data[i][j] = i + j
-
         # Analysis of Basic Multiplication
         startTime = time.time()
         result = matrix.multiply(matrix)
@@ -58,10 +62,16 @@ if __name__ == "__main__":
         basicTime = endTime - startTime
 
         # Analysis of Straussen's
+        _matrix = matrixTools.padMatrix(matrix, len(matrix))
+
         startTime = time.time()
-        # result = matrix.SAM(matrix)
+        result = matrixTools.multiply(_matrix, _matrix, len(_matrix))
         endTime = time.time()
         SAMTime = endTime - startTime
+
+        # _result = Matrix(len(result), len(result[0]))
+        # _result.data = result
+        # print(_result)
 
         # Analysis of SAMk
         startTime = time.time()
@@ -69,14 +79,33 @@ if __name__ == "__main__":
         endTime = time.time()
         SAMkTime = endTime - startTime
 
+        file = open("RunTimeResults/" + fileName, 'a')
         file.write(f"{size}, {size * size}, {basicTime}, {SAMTime}, {SAMkTime}\n")
+        file.close()
 
         progress = int(mat / steps * loadingBarSize)
         loadingBar = "█" * progress + " " * (steps - progress)
-        print(f"[{loadingBar}]", end="\r")
-        size = size + stepSize
+        print(f"Multiplying matrices... [{loadingBar}]", end="\r")
+
+        if mat < steps-1:
+            # Expand the old matrix (rather than make a new one)
+            # Much faster so that tests can run longer
+            newSize = size + stepSize
+            # Expand current columns to be taller
+            for i in range(size):
+                for j in range(size, newSize):
+                    matrix[i].append(i+j)
+            # Add extra columns
+            for i in range(size, newSize):
+                column = []
+                for j in range(newSize):
+                    column.append(i + j)
+                matrix.data.append(column)
+            matrix.rows = newSize
+            matrix.columns = newSize
+            size = newSize
     
     loadingBar = "█" * loadingBarSize
-    print(f"[{loadingBar}]")
+    print(f"Multiplying matrices... [{loadingBar}]")
 
     file.close()

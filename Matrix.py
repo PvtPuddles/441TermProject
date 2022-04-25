@@ -11,6 +11,12 @@ class Matrix:
 		    for j in range(self.columns):
 		        col.append(0)
 		    self.data.append(col)
+	
+	def __len__(self):
+		return self.rows
+
+	def __getitem__(self, key):
+		return self.data[key]
 
 	# Basic matrix multiplication
 	def multiply(self, other):
