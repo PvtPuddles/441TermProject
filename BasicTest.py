@@ -154,10 +154,38 @@ def doSAM2():
 	resultSAM = matrix1.SAM(matrix2)
 	Matrix.printEquation(matrix1, matrix2, resultSAM)
 
+def doSAM3():
+	matrix1 = Matrix().importData([
+		[1, 2, 3, 4, 5],
+		[3, 4, 5, 6, 7],
+		[5, 6, 7, 8, 9],
+		[7, 8, 9, 10, 11],
+		[9, 10, 11, 12, 13]
+	])
+
+	matrix2 = Matrix().importData([
+		[5, 6, 7, 8, 9],
+		[7, 8, 9, 10, 11],
+		[9, 10, 11, 12, 13],
+		[11, 12, 13, 14, 15],
+		[13, 14, 15, 16, 17]
+	])
+
+	resultBMM = matrix1.BMM(matrix2)
+
+	print(testHeading("SAM TEST THREE", 
+		matrix1, matrix2, resultBMM))
+
+	print("BMM:")
+	Matrix.printEquation(matrix1, matrix2, resultBMM)
+	print("SAM:")
+	resultSAM = matrix1.SAM(matrix2)
+	Matrix.printEquation(matrix1, matrix2, resultSAM)
 
 def doSAMTests():
 	doSAM1()
 	doSAM2()
+	doSAM3()
 
 if __name__ == "__main__":
 

@@ -145,9 +145,9 @@ class Matrix:
 				result[k+i][j] = mr21[i][j]
 				result[k+i][k+j] = mr22[i][j]
 		# Trim result back down to correct size
-		result.data = result.data[:len(self)][:len(self)]
 		result.rows = self.rows
 		result.columns = self.columns
+		result.data = [result[i][:result.columns] for i in range(result.rows)]
 
 		return result
 
