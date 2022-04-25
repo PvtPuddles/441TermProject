@@ -11,17 +11,21 @@ from BasicTest import testHeading
 if __name__ == "__main__":
 
     size = 10
-    steps = 10
+    steps = 5
     stepSize = 10
+    trials = 3
 
     if(len(sys.argv) > 1):
         for i in range(1, len(sys.argv)):
-            if sys.argv[i] == "startSize" and len(sys.argv) > i + 1:
+            if sys.argv[i] == "size" and len(sys.argv) > i + 1:
                 size = int(sys.argv[i + 1])
             elif sys.argv[i] == "steps" and len(sys.argv) > i + 1:
                 steps = int(sys.argv[i + 1])
             elif sys.argv[i] == "stepSize" and len(sys.argv) > i + 1:
                 stepSize = int(sys.argv[i + 1])
+            elif sys.argv[i] == "trials" and len(sys.argv) > i + 1:
+                trials = int(sys.argv[i + 1])
+            
 
     if not exists("RunTimeResults/"):
         os.mkdir("RunTimeResults")
@@ -39,16 +43,18 @@ if __name__ == "__main__":
     fileName = fileName + ".csv"
 
     file = open("RunTimeResults/" + fileName, 'w')
-    file.write("Matrix Size, Elements, Basic Multiply, SAM, SAMk\n")
+    file.write("Matrix Size, Elements")
+    for trial in range(trials):
+        file.write(f", BMM{trial}")
+    for trial in range(trials):
+        file.write(f", SAM{trial}")
+    file.write("\n")
     file.close()
 
     loadingBarSize = 20
 
     loadingBar = " " * loadingBarSize
     print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
-
-    matrixTools = SMatrixTools()
-
 
     matrix = Matrix()
     data = []
@@ -59,32 +65,37 @@ if __name__ == "__main__":
         data.append(column)
     matrix.importData(data)
     for mat in range(steps):
-        # Analysis of Basic Multiplication
-        startTime = time.time()
-        result = matrix.BMM(matrix)
-        endTime = time.time()
-        basicTime = endTime - startTime
+        file = open("RunTimeResults/" + fileName, "a")
+        file.write(f"{size}, {size * size}")
+
+        for _ in range(trials):
+            # Analysis of Basic Multiplication
+            startTime = time.time()
+            result = matrix.BMM(matrix)
+            endTime = time.time()
+            basicTime = endTime - startTime
+            file.write(f", {basicTime}")
 
         # Analysis of Straussen's
-        _matrix = matrixTools.padMatrix(matrix, len(matrix))
+        for _ in range(trials):
+            startTime = time.time()
+            result = matrix.SAM(matrix)
+            endTime = time.time()
+            SAMTime = endTime - startTime
+            file.write(f", {SAMTime}")
 
-        startTime = time.time()
-        result = matrixTools.multiply(_matrix, _matrix, len(_matrix))
-        endTime = time.time()
-        SAMTime = endTime - startTime
+        # # Analysis of SAMk
+        # for _ in range(trials):
+        #     startTime = time.time()
+        #     result = matrix.SAMk(matrix)
+        #     endTime = time.time()
+        #     SAMkTime = endTime - startTime
+        #     file.write(f", {SAMkTime}")
 
-        # Analysis of SAMk
-        startTime = time.time()
-        # result = matrix.SAMk(matrix)
-        endTime = time.time()
-        SAMkTime = endTime - startTime
-
-        file = open("RunTimeResults/" + fileName, 'a')
-        file.write(f"{size}, {size * size}, {basicTime}, {SAMTime}, {SAMkTime}\n")
-        file.close()
+        file.write("\n")
 
         progress = int(mat / steps * loadingBarSize)
-        loadingBar = "█" * progress + " " * (steps - progress)
+        loadingBar = "█" * progress + " " * (loadingBarSize - progress)
         print(f"Multiplying matrices... [{loadingBar}]   ", end="\r")
 
         if mat < steps-1:

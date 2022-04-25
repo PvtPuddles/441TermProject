@@ -53,8 +53,7 @@ class Matrix:
 		if not self.columns == other.rows:
 			raise Exception("Incompatible matrices, BMM failed")
 
-		result = Matrix()
-		result.makeMatrix(self.rows, other.columns)
+		result = Matrix().makeMatrix(self.rows, other.columns)
 
 		for i in range(0, result.rows):
 			for j in range(0, result.columns):
@@ -82,13 +81,20 @@ class Matrix:
 		# Check that matrix is a power of 2
 		if (not (self.rows & (self.rows-1) == 0) and self.rows != 0):
 			m = Matrix.__findNextPowerOf2(self.rows)
-			self.expandMatrix(m, m)
-			other.expandMatrix(m, m)
+			# Deep copy of self and other (as to not modify their data)
+			a = Matrix().importData([row[:] for row in self.data])
+			a.expandMatrix(m, m)
+			b = Matrix().importData([row[:] for row in other.data])
+			b.expandMatrix(m, m)
+		else:
+			a = self
+			b = other
 
 		# Result matrix
-		result = Matrix().makeMatrix(self.rows, self.columns)
+		result = Matrix().makeMatrix(a.rows, a.columns)
 		# Dimensions of sub-matrices
-		k = self.rows // 2
+		k = a.rows // 2
+		# Define sub-matrices (may be slow)
 		ma11 = Matrix().makeMatrix(k, k)
 		ma12 = Matrix().makeMatrix(k, k)
 		ma21 = Matrix().makeMatrix(k, k)
@@ -97,17 +103,17 @@ class Matrix:
 		mb12 = Matrix().makeMatrix(k, k)
 		mb21 = Matrix().makeMatrix(k, k)
 		mb22 = Matrix().makeMatrix(k, k)
-
+		# initialize sub-matrices
 		for i in range(k):
 			for j in range(k):
-				ma11[i][j] = self[i][j]
-				ma12[i][j] = self[i][k+j]
-				ma21[i][j] = self[k+i][j]
-				ma22[i][j] = self[k+i][k+j]
-				mb11[i][j] = other[i][j]
-				mb12[i][j] = other[i][k+j]
-				mb21[i][j] = other[k+i][j]
-				mb22[i][j] = other[k+i][k+j]
+				ma11[i][j] = a[i][j]
+				ma12[i][j] = a[i][k+j]
+				ma21[i][j] = a[k+i][j]
+				ma22[i][j] = a[k+i][k+j]
+				mb11[i][j] = b[i][j]
+				mb12[i][j] = b[i][k+j]
+				mb21[i][j] = b[k+i][j]
+				mb22[i][j] = b[k+i][k+j]
 
 		p1 = ma11.SAM(mb12 - mb22)
 		p2 = (ma11 + ma12).SAM(mb22)
@@ -117,10 +123,10 @@ class Matrix:
 		p6 = (ma12 - ma22).SAM(mb21 + mb22)
 		p7 = (ma11 - ma21).SAM(mb11 + mb12)
 
-		mr11 = (((p5 + p4) + p6) - p2)
+		mr11 = (p5 + p4 + p6) - p2
 		mr12 = p1 + p2
 		mr21 = p3 + p4
-		mr22 = ((p5 + p1) - p3) - p7
+		mr22 = (p5 + p1) - p3 - p7
 
 		for i in range(k):
 			for j in range(k):
@@ -128,6 +134,11 @@ class Matrix:
 				result[i][j+k] = mr12[i][j]
 				result[k+i][j] = mr21[i][j]
 				result[k+i][k+j] = mr22[i][j]
+		# Trim result back down to correct size
+		result.data = result.data[:len(self)][:len(self)]
+		result.rows = self.rows
+		result.columns = self.columns
+
 		return result
 
 
@@ -136,6 +147,7 @@ class Matrix:
 		for i in range(self.rows):
 			for j in range(self.columns, columns):
 				self[i].append(fill(i, j))
+
 		# Add extra columns
 		for i in range(self.rows, rows):
 			column = []
@@ -235,20 +247,20 @@ class Matrix:
 		m2 = matrix2.toArray()
 		result = resultMatrix.toArray()
 
-		height = max(matrix1.rows, matrix2.rows)
+		height = max(matrix1.rows, matrix2.rows, resultMatrix.rows)
 
 		# Pad matrices to line up nicely
 		m1 = Matrix.padMatrixArray(m1, matrix1.getMatrixWidth(), height)
 		m2 = Matrix.padMatrixArray(m2, matrix2.getMatrixWidth(), height)
 		result = Matrix.padMatrixArray(result, resultMatrix.getMatrixWidth(), height)
 
-		for i in range(0, int(height / 2)):
+		mid = int((height-1) // 2)
+		for i in range(0, mid):
 			print(f"{m1[i]}   {m2[i]}   {result[i]}")
 
-		mid = int(height / 2)
 		print(f"{m1[mid]} {symbol} {m2[mid]} = {result[mid]}")
 
-		for i in range(int(height / 2) + 1, height):
+		for i in range(mid + 1, height):
 			print(f"{m1[i]}   {m2[i]}   {result[i]}")
 
 
