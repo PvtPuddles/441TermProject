@@ -57,7 +57,7 @@ class Matrix:
 
 	def __sub__(self, other):
 		if not self.rows == other.rows or not self.columns == other.columns:
-    			raise Exception("Incompatible matrices, subtraction failed")
+			raise Exception("Incompatible matrices, subtraction failed")
 
 		result = Matrix().makeMatrix(self.rows, self.columns)
 		for i in range(self.rows):

@@ -5,14 +5,14 @@ import os
 from os.path import exists
 
 from Matrix import Matrix
-from Sam import SMatrixTools
 from BasicTest import testHeading
 
 if __name__ == "__main__":
+    mode = "add"
 
-    size = 10
-    steps = 5
-    stepSize = 10
+    size = 2
+    steps = 3
+    stepSize = 3
     trials = 3
 
     if(len(sys.argv) > 1):
@@ -25,14 +25,21 @@ if __name__ == "__main__":
                 stepSize = int(sys.argv[i + 1])
             elif sys.argv[i] == "trials" and len(sys.argv) > i + 1:
                 trials = int(sys.argv[i + 1])
+            elif sys.argv[i] == "mode" and len(sys.argv) > i + 1:
+                mode = sys.argv[i + 1]
             
+    maxSize = 0
+    if mode == "mul":
+        maxSize = size * stepSize ** (steps - 1)
+    elif mode == "add":
+        maxSize = (steps-1)*stepSize + size
 
     if not exists("RunTimeResults/"):
         os.mkdir("RunTimeResults")
 
-    print(f"Testing matrices from n={size} to n={(steps-1)*stepSize + size}")
+    print(f"Testing matrices from n={size} to n={maxSize}")
 
-    fileName = f"run_times_{size}_to_{(steps-1)*stepSize + size}"
+    fileName = f"run_times_{size}_to_{maxSize}"
     numString = ""
     num = 0
     while(exists("RunTimeResults/" + fileName + numString + ".csv")):
@@ -66,7 +73,11 @@ if __name__ == "__main__":
     matrix.importData(data)
     for step in range(steps):
         file = open("RunTimeResults/" + fileName, "a")
-        file.write(f"{size}, {size * size}")
+        file.write(f"{size}, {size ** 2}")
+
+        progress = int(step / steps * loadingBarSize)
+        loadingBar = "█" * progress + " " * (loadingBarSize - progress)
+        print(f"Multiplying matrices... [{loadingBar}] ({step}/{steps})    ", end="\r")
 
         for _ in range(trials):
             # Analysis of Basic Multiplication
@@ -94,14 +105,13 @@ if __name__ == "__main__":
 
         file.write("\n")
 
-        progress = int(step / steps * loadingBarSize)
-        loadingBar = "█" * progress + " " * (loadingBarSize - progress)
-        print(f"Multiplying matrices... [{loadingBar}] ({step}/{steps})    ", end="\r")
-
         if step < steps-1:
             # Expand the old matrix (rather than make a new one)
             # Much faster so that tests can run longer
-            newSize = size + stepSize
+            if mode == "mul":
+                newSize = size * stepSize
+            elif mode == "add":
+                newSize = size + stepSize
             matrix.expandMatrix(newSize, newSize, fill=(lambda i, j: i + j))
             size = newSize
     
