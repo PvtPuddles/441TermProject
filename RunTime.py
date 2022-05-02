@@ -10,9 +10,15 @@ from BasicTest import testHeading
 if __name__ == "__main__":
     mode = "add"
 
-    size = 2
-    steps = 3
-    stepSize = 3
+    algs = {
+        "BMM": False,
+        "SAM": False,
+        "SAMk": False
+    }
+
+    size = 5
+    steps = 4
+    stepSize = 5
     trials = 3
 
     if(len(sys.argv) > 1):
@@ -27,6 +33,11 @@ if __name__ == "__main__":
                 trials = int(sys.argv[i + 1])
             elif sys.argv[i] == "mode" and len(sys.argv) > i + 1:
                 mode = sys.argv[i + 1]
+            elif algs.__contains__(sys.argv[i]):
+                algs[sys.argv[i]] = True
+            
+    if not algs["BMM"] and not algs["SAM"] and not algs["SAMk"]:
+        algs["BMM"] = algs["SAM"] = True
             
     maxSize = 0
     if mode == "mul":
@@ -39,7 +50,15 @@ if __name__ == "__main__":
 
     print(f"Testing matrices from n={size} to n={maxSize}")
 
-    fileName = f"run_times_{size}_to_{maxSize}"
+    fileName = f"{size}_to_{maxSize}"
+    active_algs = []
+    for key, value in algs.items():
+        if value:
+            active_algs.append(key)
+    alg_str = "_".join(active_algs)
+    fileName = f"{alg_str}_{fileName}"
+    
+
     numString = ""
     num = 0
     while(exists("RunTimeResults/" + fileName + numString + ".csv")):
@@ -51,10 +70,15 @@ if __name__ == "__main__":
 
     file = open("RunTimeResults/" + fileName, 'w')
     file.write("Matrix Size, Elements")
-    for trial in range(trials):
-        file.write(f", BMM{trial}")
-    for trial in range(trials):
-        file.write(f", SAM{trial}")
+    if algs["BMM"]:
+        for trial in range(trials):
+            file.write(f", BMM{trial}")
+    if algs["SAM"]:
+        for trial in range(trials):
+            file.write(f", SAM{trial}")
+    if algs["SAMk"]:
+        for trial in range(trials):
+            file.write(f", SAMk{trial}")
     file.write("\n")
     file.close()
 
@@ -79,29 +103,32 @@ if __name__ == "__main__":
         loadingBar = "█" * progress + " " * (loadingBarSize - progress)
         print(f"Multiplying matrices... [{loadingBar}] ({step}/{steps})    ", end="\r")
 
-        for _ in range(trials):
-            # Analysis of Basic Multiplication
-            startTime = time.time()
-            result = matrix.BMM(matrix)
-            endTime = time.time()
-            basicTime = endTime - startTime
-            file.write(f", {basicTime}")
+        # Analysis of Basic Multiplication
+        if algs["BMM"]:
+            for _ in range(trials):
+                startTime = time.time()
+                result = matrix.BMM(matrix)
+                endTime = time.time()
+                basicTime = endTime - startTime
+                file.write(f", {basicTime}")
 
         # Analysis of Straussen's
-        for _ in range(trials):
-            startTime = time.time()
-            result = matrix.SAM(matrix)
-            endTime = time.time()
-            SAMTime = endTime - startTime
-            file.write(f", {SAMTime}")
+        if algs["SAM"]:
+            for _ in range(trials):
+                startTime = time.time()
+                result = matrix.SAM(matrix)
+                endTime = time.time()
+                SAMTime = endTime - startTime
+                file.write(f", {SAMTime}")
 
-        # # Analysis of SAMk
-        # for _ in range(trials):
-        #     startTime = time.time()
-        #     result = matrix.SAMk(matrix)
-        #     endTime = time.time()
-        #     SAMkTime = endTime - startTime
-        #     file.write(f", {SAMkTime}")
+        # Analysis of SAMk
+        if algs["SAMk"]:
+            for _ in range(trials):
+                startTime = time.time()
+                # result = matrix.SAMk(matrix)
+                endTime = time.time()
+                SAMkTime = endTime - startTime
+                file.write(f", {SAMkTime}")
 
         file.write("\n")
 
