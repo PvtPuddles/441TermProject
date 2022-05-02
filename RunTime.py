@@ -116,6 +116,6 @@ if __name__ == "__main__":
             size = newSize
     
     loadingBar = "█" * loadingBarSize
-    print(f"Multiplying matrices... [{loadingBar}] ({steps}/{steps})     ")
+    print(f"Multiplying matrices... [{loadingBar}] ({steps}/{steps})\a      ")
 
     file.close()
