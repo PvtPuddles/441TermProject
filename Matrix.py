@@ -74,13 +74,12 @@ class Matrix:
 
         for i in range(0, result.rows):
             for j in range(0, result.columns):
-                mul = 0
+                sum = 0
                 for k in range(0, self.columns):
-                    a = self.data[i][k]
-                    b = other.data[k][j]
-                    mul = mul + a * b
-                result.data[i][j] = mul
-
+                    a = self[i][k]
+                    b = other[k][j]
+                    sum = sum + a * b
+                result[i][j] = sum
         return result
 
     def SAM(self, other):
