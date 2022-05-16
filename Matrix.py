@@ -150,15 +150,13 @@ class Matrix:
 
         return result
 
-    k = 10000
-
-    def SAMk(self, other):
+    def SAMk(self, other, cutoff=8):
         if self.rows != self.columns or other.rows != other.columns:
             raise Exception("Matrices must be square; SAMk failed")
         if self.columns != other.rows:
             raise Exception("Incompatible matrices, SAMk failed")
 
-        if self.rows <= self.k:
+        if self.rows <= cutoff:
             return self.BMM(other)
         
         if (self.rows == 1):
@@ -197,13 +195,13 @@ class Matrix:
         # If this was programmed in c, we could simply move the pointers
         # 	for this to run in constant time
 
-        p1 = ma11.SAMk(mb12 - mb22)
-        p2 = (ma11 + ma12).SAMk(mb22)
-        p3 = (ma21 + ma22).SAMk(mb11)
-        p4 = ma22.SAMk(mb21 - mb11)
-        p5 = (ma11 + ma22).SAMk(mb11 + mb22)
-        p6 = (ma12 - ma22).SAMk(mb21 + mb22)
-        p7 = (ma11 - ma21).SAMk(mb11 + mb12)
+        p1 = ma11.SAMk(mb12 - mb22, cutoff)
+        p2 = (ma11 + ma12).SAMk(mb22, cutoff)
+        p3 = (ma21 + ma22).SAMk(mb11, cutoff)
+        p4 = ma22.SAMk(mb21 - mb11, cutoff)
+        p5 = (ma11 + ma22).SAMk(mb11 + mb22, cutoff)
+        p6 = (ma12 - ma22).SAMk(mb21 + mb22, cutoff)
+        p7 = (ma11 - ma21).SAMk(mb11 + mb12, cutoff)
 
         mr11 = (p5 + p4 + p6) - p2
         mr12 = p1 + p2

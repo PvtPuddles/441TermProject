@@ -20,6 +20,7 @@ if __name__ == "__main__":
     steps = 4
     stepSize = 5
     trials = 3
+    k = 0
 
     if(len(sys.argv) > 1):
         for i in range(1, len(sys.argv)):
@@ -35,6 +36,8 @@ if __name__ == "__main__":
                 mode = sys.argv[i + 1]
             elif algs.__contains__(sys.argv[i]):
                 algs[sys.argv[i]] = True
+            elif sys.argv[i] == "k" and len(sys.argv) > i + 1:
+                k = int(sys.argv[i + 1])
             
     if not algs["BMM"] and not algs["SAM"] and not algs["SAMk"]:
         algs["BMM"] = algs["SAM"] = True
@@ -48,7 +51,10 @@ if __name__ == "__main__":
     if not exists("RunTimeResults/"):
         os.mkdir("RunTimeResults")
 
-    print(f"Testing matrices from n={size} to n={maxSize}")
+    if not k == 0:
+        print(f"Testing matrices from n={size} to n={maxSize} (k={k})")
+    else:
+        print(f"Testing matrices from n={size} to n={maxSize}")
 
     fileName = f"{size}_to_{maxSize}"
     active_algs = []
@@ -58,6 +64,11 @@ if __name__ == "__main__":
     alg_str = "_".join(active_algs)
     fileName = f"{alg_str}_{fileName}"
     
+    if not k == 0:
+        fileName = f"{fileName}_k={k}"
+    else:
+        k=8
+
 
     numString = ""
     num = 0
@@ -125,7 +136,7 @@ if __name__ == "__main__":
         if algs["SAMk"]:
             for _ in range(trials):
                 startTime = time.time()
-                # result = matrix.SAMk(matrix)
+                result = matrix.SAMk(matrix, k)
                 endTime = time.time()
                 SAMkTime = endTime - startTime
                 file.write(f", {SAMkTime}")

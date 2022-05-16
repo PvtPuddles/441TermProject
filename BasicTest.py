@@ -10,7 +10,7 @@ def testHeading(text, m1, m2, m3):
 	textSize = textSize + 6				# Operators
 	fillSize = textSize - len(text)
 
-	text = "━" * int(fillSize/2) + text + "━" * (fillSize - int(fillSize/2))
+	text = "━" * int(fillSize/2) + text + "━" * (fillSize - int((fillSize+1)/2))
 
 	text = f"\033[1m{text}\033[0m"  	# Bold text
 
